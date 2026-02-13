@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flora – Email Generator Final</title>
+
+<style>
+body{
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif;
+    background:#f4f4f4;
+    margin:0;
+    padding:40px 20px;
+}
+.container{
+    max-width:1000px;
+    margin:auto;
+    background:white;
+    padding:40px;
+    border-radius:16px;
+    box-shadow:0 20px 50px rgba(0,0,0,0.08);
+}
+.header{
+    display:block;
+    text-align:left;
+    margin-bottom:30px;
+}
+label{
+    font-weight:600;
+    display:block;
+    margin-top:16px;
+}
+input, select, textarea{
+    width:100%;
+    padding:10px;
+    margin-top:6px;
+    border-radius:8px;
+    border:1px solid #ddd;
+    font-size:14px;
+}
+button{
+    margin-top:20px;
+    padding:12px 22px;
+    border:none;
+    border-radius:8px;
+    cursor:pointer;
+    font-weight:600;
+    background:#111;
+    color:white;
+}
+.preview{
+    margin-top:40px;
+    padding:30px;
+    border-radius:12px;
+    background:#fafafa;
+    border:1px solid #eee;
+    white-space:pre-line;
+    min-height:420px;
+    font-size:15px;
+    line-height:1.6;
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+<div class="logo">
+<img src="logo-flora.png" width="130" alt="Flora logo">
+</div>
+
+<div class="header">
+    <h2>FLORA – Générateur d’email</h2>
+</div>
+
+<label>Langue</label>
+<select id="language">
+    <option value="fr">Français</option>
+    <option value="en">English</option>
+    <option value="nl">Nederlands</option>
+</select>
+
+<label>Gamme Flora</label>
+<select id="product">
+    <option value="zero">Flora N°0 (sans alcool)</option>
+    <option value="alcohol">Flora N°1–2–3 (avec alcool)</option>
+</select>
+
+<label>Salutation</label>
+<input id="salutation" placeholder="Bonjour / Hi / Beste">
+
+<label>Nom du partenaire</label>
+<input id="partner" placeholder="Nom du lieu">
+
+<label>Type de lieu</label>
+<select id="place">
+    <option value="sport">Salle de sport</option>
+    <option value="padel">Club de padel</option>
+    <option value="running">Club de running</option>
+    <option value="yoga">Studio yoga</option>
+    <option value="gallery">Galerie d’art</option>
+    <option value="bar">Bar</option>
+    <option value="nightclub">Nightclub</option>
+    <option value="festival">Festival</option>
+    <option value="popup">Pop-up</option>
+    <option value="corporate">Entreprise</option>
+    <option value="hotel">Hôtel</option>
+    <option value="concept">Concept store</option>
+    <option value="restaurant">Restaurant</option>
+</select>
+
+<label>Type de collaboration</label>
+<select id="proposal">
+    <option value="menu">intégrer nos produits</option>
+    <option value="event">imaginer une collaboration événementielle</option>
+    <option value="activation">mettre en place une activation</option>
+    <option value="launch">collaborer autour d’un lancement de produit</option>
+    <option value="afterwork">organiser un afterwork</option>
+    <option value="future">discuter d’un projet futur</option>
+</select>
+
+<label>Nom expéditeur</label>
+<input id="sender" placeholder="Flora Team">
+
+<button onclick="generateEmail()">Générer l’email</button>
+
+<label>Email généré (modifiable)</label>
+<textarea id="preview" class="preview"></textarea>
+<button id="copyBtn">Copier le texte</button>
+<span id="copyStatus" style="margin-left:10px;color:green;display:none;">Copié !</span>
+
+</div>
+
+<script>
+/* =====================
+   TEXTES SOCLES
+===================== */
+/* =====================
+   INTRO MODULABLE
+===================== */
+function getIntroText(lang, place, proposal) {
+    // Traductions par langue
+    const base = {
+        fr: "Je me permets de vous contacter afin de vous présenter Flora et d’envisager",
+        en: "I am reaching out to introduce Flora and explore",
+        nl: "Ik neem contact op om Flora voor te stellen en een mogelijke"
+    };
+
+    // Mapping type de collaboration pour la phrase
+    const collaborationMap = {
+        fr: {
+            menu: "une intégration de nos produits",
+            event: "une collaboration événementielle",
+            activation: "une activation",
+            launch: "un lancement produit",
+            afterwork: "un afterwork",
+            future: "un projet futur"
+        },
+        en: {
+            menu: "integrating our products",
+            event: "an event collaboration",
+            activation: "an activation",
+            launch: "a product launch collaboration",
+            afterwork: "an afterwork event",
+            future: "a future project"
+        },
+        nl: {
+            menu: "het integreren van onze producten",
+            event: "een evenementensamenwerking",
+            activation: "een activatie",
+            launch: "een productlancering",
+            afterwork: "een afterwork",
+            future: "een toekomstig project"
+        }
+    };
+
+    // Mapping type de lieu pour la phrase
+    const placeMap = {
+        fr: {
+            sport: "votre établissement",
+            gallery: "votre lieu",
+            event: "votre établissement",
+            neutral: "votre établissement"
+        },
+        en: {
+            sport: "your venue",
+            gallery: "your venue",
+            event: "your venue",
+            neutral: "your venue"
+        },
+        nl: {
+            sport: "uw locatie",
+            gallery: "uw locatie",
+            event: "uw locatie",
+            neutral: "uw locatie"
+        }
+    };
+
+    // Déterminer la catégorie du lieu pour la phrase
+    const categoryMap = {
+        sport: "sport", padel: "sport", running: "sport", yoga: "sport",
+        gallery: "gallery",
+        bar: "event", nightclub: "event", festival: "event", popup: "event",
+        corporate: "neutral", hotel: "neutral", concept: "neutral", restaurant: "neutral"
+    };
+
+    const category = categoryMap[place] || "neutral";
+
+    return `${base[lang]} ${collaborationMap[lang][proposal]} adaptée à ${placeMap[lang][category]}.`;
+}
+
+
+const trunkCommon = {
+fr:"Depuis le lancement de notre projet en juin 2024, nous avons réalisé une quarantaine d’activations (DJ sets, vernissages, live music, open air, etc.).",
+en:"Since the launch of our project in June 2024, we have carried out around forty activations (DJ sets, art openings, live music, open air events, etc.).",
+nl:"Sinds de lancering van ons project in juni 2024 hebben we ongeveer veertig activaties gerealiseerd (DJ-sets, vernissages, live muziek, open air, enz.)."
+};
+
+const productText = {
+fr:{
+    zero:"Flora réinvente la bière florale à travers des créations élégantes et accessibles, pensées pour les moments sociaux, culturels et événementiels. Cette saison, Flora présente la N°0, la dernière née de la gamme : une IPA sans alcool à la fleur de sureau, enrichie en électrolytes, légère et rafraîchissante, qui propose une nouvelle manière de découvrir l’univers Flora, notamment dans des contextes sportifs et actifs.",
+    alcohol:"Flora propose une gamme de 4 bières florales, pensées pour des contextes culturels et événementiels. Chacune se distingue par une amertume subtile équilibrée par des notes florales, offrant une expérience accessible, élégante et contemporaine. La dernière, Flora N°0, est une bière zéro alcool à la fleur de sureau, pour profiter de l’expérience Flora de manière légère et rafraîchissante."
+},
+en:{
+    zero:"Flora reimagines floral beer through elegant and accessible creations, designed for social, cultural, and event-driven moments. This season, Flora introduces N°0, the latest addition to the range: a non-alcoholic elderflower IPA enriched with electrolytes, light and refreshing, offering a new way to experience the Flora universe, particularly within active and sports-oriented settings.",
+    alcohol:"Flora offers a range of 4 floral beers, designed for cultural and event contexts. Each stands out with subtle bitterness balanced by floral notes, delivering an accessible, elegant, and contemporary experience. The latest, Flora N°0, is a non-alcoholic elderflower beer, allowing you to enjoy the Flora experience in a light and refreshing way."
+},
+nl:{
+    zero:"Flora herdefinieert florale bieren met elegante en toegankelijke creaties, ontworpen voor sociale, culturele en evenementiële momenten. Dit seizoen presenteert Flora N°0, de nieuwste toevoeging aan het gamma: een alcoholvrije IPA met vlierbloesem, verrijkt met elektrolyten, licht en verfrissend, die een nieuwe manier biedt om de wereld van Flora te ontdekken, ook binnen sportieve en actieve contexten.",
+    alcohol:"Flora biedt een assortiment van 4 bloemige bieren, ontworpen voor culturele en evenementgerichte contexten. Elk bier onderscheidt zich door een subtiel bittere smaak, in balans met bloemige tonen, en biedt een toegankelijke, elegante en eigentijdse ervaring. De nieuwste, Flora N°0, is een alcoholvrij bier met vlierbloesem, zodat je op een lichte en verfrissende manier van de Flora-ervaring kunt genieten."
+}
+};
+
+/* =====================
+   MODULES DE PREUVES
+===================== */
+const proofByPlace = {
+sport:"sport", padel:"sport", running:"sport", yoga:"sport",
+gallery:"art",
+bar:"event", nightclub:"event", festival:"event", popup:"event",
+corporate:"neutral", hotel:"neutral", concept:"neutral", restaurant:"neutral"
+};
+
+const proofModules = {
+fr:{
+    sport:"Côté sport, nous avons notamment réalisé une activation au Mix lors de l’ouverture de leur salle Hyrox.",
+    art:"Dans le milieu de l’art, nous avons notamment organisé un événement pour Céramique en janvier 2026.",
+    event:"Sur le volet événementiel, nous avons déjà réalisé un open air au Vauxhall pour la fête de l'iris.",
+    neutral:"Nous collaborons avec des structures recherchant une proposition qualitative pour leurs évènements."
+},
+en:{
+    sport:"On the sports side, we notably carried out an activation at Mix for the opening of their Hyrox hall.",
+    art:"In the art world, we organized an event for Céramique in January 2026.",
+    event:"On the event side, we already hosted an open air at Vauxhall for the Iris festival.",
+    neutral:"We collaborate with venues looking for a qualitative alternative for their events."
+},
+nl:{
+    sport:"Binnen sport realiseerden we een activatie bij Mix voor de opening van hun Hyrox-zaal.",
+    art:"In de kunstwereld organiseerden we een evenement voor Céramique in januari 2026.",
+    event:"Op evenementieel vlak realiseerden we reeds een open air in Vauxhall voor het irisfestival.",
+    neutral:"We werken samen met locaties die op zoek zijn naar een kwalitatief alternatief voor hun evenementen."
+}
+};
+
+const closing = {
+fr:"Seriez-vous disponibles pour en discuter brièvement ?",
+en:"Would you be available to discuss this briefly?",
+nl:"Zou u beschikbaar zijn om dit kort te bespreken?"
+};
+
+/* =====================
+   GENERATE
+===================== */
+function generateEmail(){
+    const lang = document.getElementById("language").value;
+    const salutationVal = document.getElementById("salutation").value;
+    const salutationText = salutationVal || (lang==="fr"?"Bonjour":lang==="en"?"Hi":"Beste");
+    const partnerName = document.getElementById("partner").value || "";
+    const place = document.getElementById("place").value;
+    const product = document.getElementById("product").value;
+    const sender = document.getElementById("sender").value || "Flora Team";
+
+    let email = `${salutationText} ${partnerName},\n\n`;
+    const proposal = document.getElementById("proposal").value;
+email += getIntroText(lang, place, proposal) + "\n\n";
+
+    email += productText[lang][product] + "\n\n";
+    email += trunkCommon[lang] + "\n";
+    email += proofModules[lang][proofByPlace[place]] + "\n\n";
+    email += closing[lang] + "\n\n";
+    email += `${sender}\nFLORA\nhttps://www.flora.brussels/\nhttps://www.instagram.com/flora.brussels/`;
+
+    document.getElementById("preview").value = email;
+// Bouton copier
+document.getElementById("copyBtn").addEventListener("click", () => {
+    const text = document.getElementById("preview").value;
+    navigator.clipboard.writeText(text).then(() => {
+        const status = document.getElementById("copyStatus");
+        status.style.display = "inline";
+        setTimeout(() => { status.style.display = "none"; }, 1500); // disparaît après 1,5s
+    }).catch(err => {
+        console.error("Erreur de copie :", err);
+    });
+});
+
+}
+</script>
+</body>
+</html>
