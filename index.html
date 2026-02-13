@@ -153,21 +153,20 @@ button{
    INTRO MODULABLE
 ===================== */
 function getIntroText(lang, place, proposal) {
-    // Traductions par langue
+
     const base = {
         fr: "Je me permets de vous contacter afin de vous présenter Flora et d’envisager",
         en: "I am reaching out to introduce Flora and explore",
         nl: "Ik neem contact op om Flora voor te stellen en een mogelijke"
     };
 
-    // Mapping type de collaboration pour la phrase
     const collaborationMap = {
         fr: {
             menu: "une intégration de nos produits",
             event: "une collaboration événementielle",
             activation: "une activation",
-            launch: "un lancement produit",
-            afterwork: "un afterwork",
+            launch: "une collaboration autour d’un lancement de produit",
+            afterwork: "l’organisation d’un afterwork",
             future: "un projet futur"
         },
         en: {
@@ -182,13 +181,26 @@ function getIntroText(lang, place, proposal) {
             menu: "het integreren van onze producten",
             event: "een evenementensamenwerking",
             activation: "een activatie",
-            launch: "een productlancering",
+            launch: "een samenwerking rond een productlancering",
             afterwork: "een afterwork",
             future: "een toekomstig project"
         }
     };
 
-    // Mapping type de lieu pour la phrase
+    // ✅ Accord correct de "adapté" en français selon le proposal
+    const adaptedMap = {
+        fr: {
+            menu: "adaptée à",        // une intégration
+            event: "adaptée à",       // une collaboration
+            activation: "adaptée à",  // une activation
+            launch: "adaptée à",      // une collaboration
+            afterwork: "adaptée à",   // l’organisation
+            future: "adapté à"        // un projet
+        },
+        en: "tailored to",
+        nl: "afgestemd op"
+    };
+
     const placeMap = {
         fr: {
             sport: "votre établissement",
@@ -210,7 +222,6 @@ function getIntroText(lang, place, proposal) {
         }
     };
 
-    // Déterminer la catégorie du lieu pour la phrase
     const categoryMap = {
         sport: "sport", padel: "sport", running: "sport", yoga: "sport",
         gallery: "gallery",
@@ -220,9 +231,14 @@ function getIntroText(lang, place, proposal) {
 
     const category = categoryMap[place] || "neutral";
 
-    return `${base[lang]} ${collaborationMap[lang][proposal]} adaptée à ${placeMap[lang][category]}.`;
-}
+    // 🔹 Sélection correcte selon la langue
+    const adapted =
+        lang === "fr"
+            ? adaptedMap.fr[proposal]
+            : adaptedMap[lang];
 
+    return `${base[lang]} ${collaborationMap[lang][proposal]} ${adapted} ${placeMap[lang][category]}.`;
+}
 
 const trunkCommon = {
 fr:"Depuis le lancement de notre projet en juin 2024, nous avons réalisé une quarantaine d’activations (DJ sets, vernissages, live music, open air, etc.).",
